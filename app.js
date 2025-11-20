@@ -43,11 +43,18 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 // import routes
 const user = require("./controller/user");
 const product = require("./controller/product");
-
+const category = require("./controller/category");
+const tipeNota = require("./controller/tipeNota");
+const lokasiSimpan = require("./controller/lokasiSimpan");
+const supplier = require("./controller/supplier");
 
 // define routes
 app.use("/users", user);
 app.use("/products", product);
+app.use("/categories", category);
+app.use("/tipe-nota", tipeNota);
+app.use("/lokasi-simpan", lokasiSimpan);
+app.use("/suppliers", supplier);
 
 // it's for ErrorHandling
 app.use(ErrorHandler);
