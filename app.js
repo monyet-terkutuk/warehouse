@@ -47,6 +47,7 @@ const category = require("./controller/category");
 const tipeNota = require("./controller/tipeNota");
 const lokasiSimpan = require("./controller/lokasiSimpan");
 const supplier = require("./controller/supplier");
+const barangMasuk = require("./controller/barangMasuk");
 
 // define routes
 app.use("/users", user);
@@ -55,6 +56,7 @@ app.use("/categories", category);
 app.use("/tipe-nota", tipeNota);
 app.use("/lokasi-simpan", lokasiSimpan);
 app.use("/suppliers", supplier);
+app.use("/barang-masuk", barangMasuk);
 
 // it's for ErrorHandling
 app.use(ErrorHandler);
