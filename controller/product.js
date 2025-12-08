@@ -20,6 +20,7 @@ const productSchema = {
     stock_out: { type: "number", integer: true, min: 0, optional: true },
     total_stock: { type: "number", integer: true, min: 0, optional: true },
     location: { type: "string", optional: true, max: 255 },
+    image_url: { type: "string", optional: true, max: 500 },
 };
 
 // ==========================================================

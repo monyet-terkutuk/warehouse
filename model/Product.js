@@ -84,6 +84,12 @@ const productSchema = new Schema(
             trim: true,
         },
 
+        image_url: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+
         // opsional: referensi lokasi jika punya collection lokasi
         // locationRef: { type: Types.ObjectId, ref: 'Location', default: null },
     },
