@@ -50,6 +50,7 @@ const supplier = require("./controller/supplier");
 const barangMasuk = require("./controller/barangMasuk");
 const barangKeluar = require("./controller/barangKeluar");
 const customer = require("./controller/customer");
+const vendor = require("./controller/vendor");
 
 // define routes
 app.use("/users", user);
@@ -61,7 +62,7 @@ app.use("/suppliers", supplier);
 app.use("/barang-masuk", barangMasuk);
 app.use("/barang-keluar", barangKeluar);
 app.use("/customers", customer);
-
+app.use("/vendors", vendor);
 // it's for ErrorHandling
 app.use(ErrorHandler);
 
