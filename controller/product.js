@@ -71,13 +71,104 @@ router.get(
     "/list",
     isAuthenticated,
     catchAsyncErrors(async (req, res, next) => {
-        const products = await Product.find().sort({ createdAt: -1 });
-        res.status(200).json({
-            code: 200,
-            status: "success",
-            message: "Products retrieved successfully",
-            data: products,
-        });
+        try {
+            // Parse query parameters
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const search = req.query.search || "";
+            const category = req.query.category || "";
+            const sortBy = req.query.sortBy || "createdAt";
+            const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
+            const minStock = parseInt(req.query.minStock) || 0;
+            const maxStock = parseInt(req.query.maxStock) || 999999;
+            const lowStockOnly = req.query.lowStockOnly === "true";
+
+            // Calculate skip for pagination
+            const skip = (page - 1) * limit;
+
+            // Build filter object
+            const filter = {};
+
+            // Search filter (search in multiple fields)
+            if (search) {
+                filter.$or = [
+                    { product_name: { $regex: search, $options: "i" } },
+                    { name: { $regex: search, $options: "i" } },
+                    { code: { $regex: search, $options: "i" } },
+                    { variation: { $regex: search, $options: "i" } }
+                ];
+            }
+
+            // Category filter
+            if (category) {
+                filter.category = category;
+            }
+
+            // Stock range filter
+            filter.total_stock = { $gte: minStock, $lte: maxStock };
+
+            // Low stock filter
+            if (lowStockOnly) {
+                filter.total_stock = { $lte: 10 }; // Adjust threshold as needed
+            }
+
+            // Build sort object
+            const sort = {};
+            sort[sortBy] = sortOrder;
+
+            // Execute queries
+            const [products, totalCount] = await Promise.all([
+                // Get paginated products
+                Product.find(filter)
+                    .sort(sort)
+                    .skip(skip)
+                    .limit(limit)
+                    .lean(), // Use lean() for better performance
+
+                // Get total count for pagination
+                Product.countDocuments(filter)
+            ]);
+
+            // Calculate pagination info
+            const totalPages = Math.ceil(totalCount / limit);
+            const hasNextPage = page < totalPages;
+            const hasPrevPage = page > 1;
+
+            // Format response
+            const response = {
+                code: 200,
+                status: "success",
+                message: "Products retrieved successfully",
+                data: {
+                    products: products,
+                    pagination: {
+                        current_page: page,
+                        total_pages: totalPages,
+                        total_items: totalCount,
+                        items_per_page: limit,
+                        has_next_page: hasNextPage,
+                        has_prev_page: hasPrevPage,
+                        next_page: hasNextPage ? page + 1 : null,
+                        prev_page: hasPrevPage ? page - 1 : null
+                    },
+                    filters: {
+                        search: search,
+                        category: category,
+                        min_stock: minStock,
+                        max_stock: maxStock,
+                        low_stock_only: lowStockOnly,
+                        sort_by: sortBy,
+                        sort_order: sortOrder === 1 ? "asc" : "desc"
+                    }
+                }
+            };
+
+            res.status(200).json(response);
+
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            return next(new ErrorHandler("Error fetching products", 500));
+        }
     })
 );
 
